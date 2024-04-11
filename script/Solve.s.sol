@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import {Test, console2} from "forge-std/Test.sol";
+import {Script, console2} from "forge-std/Script.sol";
 import {Setup} from "src/greyhats-dollar/Setup.sol";
 
-contract KankoduTest is Test {
-    Setup setup;
-    
-    function setUp() public {
-        setup = Setup(0xa226af83F82b0b1CD656Db7085373F2bBdEf3B46);
-    }
+contract Solution is Script {
+    Setup setup = Setup(0xa226af83F82b0b1CD656Db7085373F2bBdEf3B46);
 
-    function test_solve() public {
+    function run() public {
+        vm.startBroadcast();
+
         Exploit e = new Exploit(setup);
         e.solve();
-        assertTrue(setup.isSolved());
+
+        vm.stopBroadcast();
     }
 }
 

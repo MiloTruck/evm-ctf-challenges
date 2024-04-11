@@ -5,9 +5,9 @@ pragma solidity 0.8.15;
 Note: This is a simple ERC20 contract with minting capabilities, there's no bug here.
 */
 contract GREY {
-    string public name     = "Grey Token";
-    string public symbol   = "GREY";
-    uint8  public decimals = 18;
+    string constant public name     = "Grey Token";
+    string constant public symbol   = "GREY";
+    uint8  constant public decimals = 18;
 
     event Transfer(address indexed from, address indexed to, uint256 amount);
     event Approval(address indexed owner, address indexed spender, uint256 amount);

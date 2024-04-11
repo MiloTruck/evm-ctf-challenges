@@ -7,7 +7,7 @@ library History {
         uint224 votes;
     }
 
-    struct UserHistory {
+    struct CheckpointHistory {
         mapping(address => Checkpoint[]) checkpoints;
     }
 
@@ -15,7 +15,7 @@ library History {
      * @dev Pushes a (block.number, votes) checkpoint into a user's history.
      */
     function push(
-        UserHistory storage history,
+        CheckpointHistory storage history,
         address user,
         uint256 votes
     ) internal {
@@ -41,7 +41,7 @@ library History {
      * @dev Returns votes in the last checkpoint, or zero if there is none.
      */
     function getLatestVotingPower(
-        UserHistory storage history,
+        CheckpointHistory storage history,
         address user
     ) internal view returns (uint256) {
         Checkpoint[] storage checkpoints = history.checkpoints[user];
@@ -52,10 +52,10 @@ library History {
 
     /**
      * @dev Returns votes in the last checkpoint with blockNumber lower or equal to 
-     * block.number, or zero if there is none.
+     * latestBlock, or zero if there is none.
      */
     function getVotingPower(
-        UserHistory storage history,
+        CheckpointHistory storage history,
         address user,
         uint256 latestBlock
     ) internal view returns (uint256) {
