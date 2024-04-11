@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import { IERC20 } from "../IERC20.sol";
+import { IERC20 } from "./lib/IERC20.sol";
 import { History } from "./History.sol";
 
-contract GREYVault {
+contract VotingVault {
     using History for History.UserHistory;
 
     struct UserData {
@@ -14,8 +14,9 @@ contract GREYVault {
         address delegatee;
     }
     
-    uint256 public constant SHORT_BONUS = 1.5e18;
-    uint256 public constant LONG_BONUS = 2e18;
+    uint256 public constant ZERO_BONUS = 1.1e18;
+    uint256 public constant SHORT_BONUS = 1.3e18;
+    uint256 public constant LONG_BONUS = 1.5e18;
 
     uint256 public constant SHORT_DURATION = 30 days;
     uint256 public constant LONG_DURATION = 60 days;
@@ -42,22 +43,16 @@ contract GREYVault {
      * @param duration  The duration to lock GREY for.
      */
     function lock(uint256 amount, uint256 duration) external {
-        require(amount != 0, "amount cannot be 0");
-        
-        UserData memory data = userData[msg.sender];
-        require(data.lockedAmount == 0, "lock still active");
+        (UserData memory data, address delegatee) = _getDelegatee(msg.sender);
 
         uint256 voteAmount = amount * _getBonus(duration) / 1e18;
-        history.push(msg.sender, voteAmount);
+        _addVotingPower(delegatee, voteAmount);
 
-        // @audit Bug here, if msg.sender has votes and you lock(), his votes disappear
+        data.lockedAmount += amount;
+        data.votes += voteAmount;
+        data.unlockTimestamp += duration;
 
-        userData[msg.sender] = UserData({
-            lockedAmount: amount,
-            votes: voteAmount,
-            unlockTimestamp: block.timestamp + duration,
-            delegatee: msg.sender
-        });
+        userData[msg.sender] = data;
 
         GREY.transferFrom(msg.sender, address(this), amount);
     }
@@ -66,12 +61,13 @@ contract GREYVault {
      * @notice Withdraws staked tokens that are unlocked.
      */
     function unlock() external {
-        UserData memory data = userData[msg.sender];
-        require(data.lockedAmount != 0, "lock not active");
-        require(block.timestamp > data.unlockTimestamp, "not unlocked");
+        (UserData memory data, address delegatee) = _getDelegatee(msg.sender);
+        require(
+            data.unlockTimestamp != 0 && block.timestamp > data.unlockTimestamp, 
+            "not locked or lock still active"
+        );
 
-        uint256 oldVotes = history.getLatestVotingPower(data.delegatee);
-        history.push(data.delegatee, oldVotes - data.votes);
+        _subtractVotingPower(delegatee, data.votes);
 
         delete userData[msg.sender];
 
@@ -84,14 +80,10 @@ contract GREYVault {
      * @param newDelegatee  The new address which gets voting power.
      */
     function delegate(address newDelegatee) external {
-        UserData memory data = userData[msg.sender];
-        require(data.lockedAmount != 0, "lock not active");
+        (UserData memory data, address delegatee) = _getDelegatee(msg.sender);
 
-        uint256 oldDelegateeVotes = history.getLatestVotingPower(data.delegatee);
-        history.push(data.delegatee, oldDelegateeVotes - data.votes);
-
-        uint256 newDelegateeVotes = history.getLatestVotingPower(newDelegatee);
-        history.push(newDelegatee, newDelegateeVotes + data.votes);
+        _subtractVotingPower(delegatee, data.votes);
+        _addVotingPower(newDelegatee, data.votes);
 
         userData[msg.sender].delegatee = newDelegatee;
     }
@@ -115,6 +107,23 @@ contract GREYVault {
     function _getBonus(uint256 duration) internal pure returns (uint256) {
         if (duration >= LONG_DURATION) return LONG_BONUS;
         if (duration >= SHORT_DURATION) return SHORT_BONUS;
-        return 0;
+        return ZERO_BONUS;
+    }
+
+    function _getDelegatee(
+        address user
+    ) internal view returns (UserData memory data, address delegatee) {
+        data = userData[user];
+        delegatee = data.delegatee == address(0) ? user : data.delegatee;
+    }
+
+    function _subtractVotingPower(address delegatee, uint256 votes) internal {
+        uint256 oldVotes = history.getLatestVotingPower(delegatee);
+        history.push(delegatee, oldVotes - votes);  
+    }
+
+    function _addVotingPower(address delegatee, uint256 votes) internal {
+        uint256 oldVotes = history.getLatestVotingPower(delegatee);
+        history.push(delegatee, oldVotes + votes);  
     }
 }

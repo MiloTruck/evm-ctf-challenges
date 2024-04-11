@@ -73,6 +73,6 @@ library History {
             }
         }
 
-        return checkpoints[high].votes;
+        return high == 0 ? 0 : checkpoints[high - 1].votes;
     }
 }
