@@ -94,7 +94,7 @@ contract SimpleAMM is ERC20 {
      *
      * @param swapXForY  Whether the swap is tokenX to tokenY, or vice versa.
      * @param amountIn   The amount of tokens to swap in.
-     * @param amountOut   The amount of tokens to swap out.
+     * @param amountOut  The amount of tokens to swap out.
      */
     function swap(bool swapXForY, uint256 amountIn, uint256 amountOut) external invariant {
         IERC20 tokenIn;
