@@ -64,7 +64,7 @@ library History {
         uint256 low = 0;
         uint256 high = checkpoints.length;
         
-        while (low <= high) {
+        while (low < high) {
             uint256 mid = (high + low) / 2;
             if (checkpoints[mid].blockNumber > latestBlock) {
                 high = mid;
@@ -73,6 +73,6 @@ library History {
             }
         }
 
-        return high == 0 ? 0 : checkpoints[high - 1].votes;
+        return checkpoints[high].votes;
     }
 }

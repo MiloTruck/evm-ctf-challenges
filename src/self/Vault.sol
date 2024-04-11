@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import { IERC20 } from "../IERC20.sol";
 import { History } from "./History.sol";
 
-contract GWIFVault {
+contract GREYVault {
     using History for History.UserHistory;
 
     struct UserData {
@@ -20,26 +20,26 @@ contract GWIFVault {
     uint256 public constant SHORT_DURATION = 30 days;
     uint256 public constant LONG_DURATION = 60 days;
 
-    IERC20 public immutable GWIF;
+    IERC20 public immutable GREY;
 
     History.UserHistory internal history;
 
     mapping(address => UserData) public userData;
 
     /**
-     * @param gwif  The GWIF token contract.
+     * @param grey  The GREY token contract.
      */
-    constructor(address gwif) {
-        GWIF = IERC20(gwif);
+    constructor(address grey) {
+        GREY = IERC20(grey);
     }
 
     // ========================================= MUTATIVE FUNCTIONS ========================================
 
     /**
-     * @notice Allows users to stake and lock GWIF for a boost in voting power.
+     * @notice Allows users to stake and lock GREY for a boost in voting power.
      *
-     * @param amount  The amount GWIF the user wishes to stake.
-     * @param duration  The duration to lock GWIF for.
+     * @param amount  The amount of GREY the user wishes to stake.
+     * @param duration  The duration to lock GREY for.
      */
     function lock(uint256 amount, uint256 duration) external {
         require(amount != 0, "amount cannot be 0");
@@ -50,6 +50,8 @@ contract GWIFVault {
         uint256 voteAmount = amount * _getBonus(duration) / 1e18;
         history.push(msg.sender, voteAmount);
 
+        // @audit Bug here, if msg.sender has votes and you lock(), his votes disappear
+
         userData[msg.sender] = UserData({
             lockedAmount: amount,
             votes: voteAmount,
@@ -57,7 +59,7 @@ contract GWIFVault {
             delegatee: msg.sender
         });
 
-        GWIF.transferFrom(msg.sender, address(this), amount);
+        GREY.transferFrom(msg.sender, address(this), amount);
     }
 
     /**
@@ -66,14 +68,14 @@ contract GWIFVault {
     function unlock() external {
         UserData memory data = userData[msg.sender];
         require(data.lockedAmount != 0, "lock not active");
-        require(block.timestamp > data.unlockTimestamp, "still locked");
+        require(block.timestamp > data.unlockTimestamp, "not unlocked");
 
         uint256 oldVotes = history.getLatestVotingPower(data.delegatee);
         history.push(data.delegatee, oldVotes - data.votes);
 
         delete userData[msg.sender];
 
-        GWIF.transfer(msg.sender, data.lockedAmount);
+        GREY.transfer(msg.sender, data.lockedAmount);
     }
 
     /**
