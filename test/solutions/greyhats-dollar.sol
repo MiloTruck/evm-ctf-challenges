@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.15;
 
-import { Setup } from "./Setup.sol";
+import { Setup } from "src/greyhats-dollar/Setup.sol";
 
 contract Exploit {
     Setup setup;
