@@ -12,6 +12,7 @@ contract Treasury {
         address recipient;
         address token;
         uint256 amount;
+        uint256 blockNumber;
         uint256 votes;
     }
     
@@ -62,6 +63,7 @@ contract Treasury {
             recipient: recipient,
             token: token,
             amount: amount,
+            blockNumber: block.number,
             votes: 0
         }));
 
@@ -75,9 +77,13 @@ contract Treasury {
      */
     function vote(uint256 proposalId) external {
         require(!voted[proposalId][msg.sender], "already voted");
+
+        uint256 blockNumber = proposals[proposalId].blockNumber;
+        require(blockNumber < block.number, "same block");
+        
         voted[proposalId][msg.sender] = true;
 
-        uint256 votingPower = VAULT.votingPower(msg.sender, block.number - 1);
+        uint256 votingPower = VAULT.votingPower(msg.sender, blockNumber);
         proposals[proposalId].votes += votingPower;
     }
 
