@@ -6,6 +6,7 @@ import {Setup as GHDSetup, Exploit as GHDExploit} from "test/solutions/greyhats-
 import {Setup as VVSetup, Exploit as VVExploit} from "test/solutions/voting-vault.sol";
 import {Setup as SAVSetup, Exploit as SAVExploit} from "test/solutions/simple-amm-vault.sol";
 import {Setup as ESetup, Exploit as EExploit} from "test/solutions/escrow.sol";
+import {Setup as GUSetup, Exploit as GUExploit} from "test/solutions/gnosis-unsafe.sol";
 
 contract Solution is Test {
     function test_solve_greyhats_dollar() public {
@@ -43,6 +44,17 @@ contract Solution is Test {
 
         e.solve();
         
+        assertTrue(setup.isSolved());
+    }
+
+    function test_solve_gnosis_unsafe() public {
+        GUSetup setup = new GUSetup();
+        GUExploit e = new GUExploit(setup);
+
+        e.solvePart1();
+        skip(1 minutes);
+        e.solvePart2();
+
         assertTrue(setup.isSolved());
     }
 }
