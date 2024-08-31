@@ -6,6 +6,7 @@ import {Setup as GHDSetup, Exploit as GHDExploit} from "test/solutions/greyhats-
 import {Setup as VVSetup, Exploit as VVExploit} from "test/solutions/voting-vault.sol";
 import {Setup as SAVSetup, Exploit as SAVExploit} from "test/solutions/simple-amm-vault.sol";
 import {Setup as ESetup, Exploit as EExploit} from "test/solutions/escrow.sol";
+import {Setup as MSSetup, Exploit as MSExploit} from "test/solutions/meta-staking.sol";
 import {Setup as GUSetup, Exploit as GUExploit} from "test/solutions/gnosis-unsafe.sol";
 
 contract Solution is Test {
@@ -44,6 +45,18 @@ contract Solution is Test {
 
         e.solve();
         
+        assertTrue(setup.isSolved());
+    }
+
+    function test_solve_meta_staking() public {
+        (address addr, uint256 privateKey) = makeAddrAndKey("PLAYER");
+
+        MSSetup setup = new MSSetup();
+        MSExploit e = new MSExploit(setup, addr, privateKey);
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, e.getTxHash());
+        e.solve(v, r, s);
+
         assertTrue(setup.isSolved());
     }
 
