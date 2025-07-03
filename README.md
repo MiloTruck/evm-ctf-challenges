@@ -10,5 +10,7 @@ Each challenge has its own folder in [`src/`](/src/):
 6. [Gnosis Unsafe](/src/gnosis-unsafe/)
 7. [Rational](/src/rational/)
 8. [Launchapd](/src/launchpad/)
+9. [Locker](/src/locker/)
+10. [Race](src/race/)
 
 Solutions can be found in [`test/solutions/`](/test/solutions/).
